@@ -21,7 +21,7 @@ public class main {
 
     @GetMapping("/")
     public String index() {
-        return "search"; // 回傳前端頁面
+        return "search";
     }
 
     @PostMapping("/search")
@@ -29,7 +29,6 @@ public class main {
         String keyword = request.get("keyword");
         System.out.println("Search Keyword: " + keyword);
         
-        // 使用 TMDB API 查詢電影名稱
         MovieQuery query = new MovieQuery(keyword);
         HashMap<String, String> results = query.query();
 

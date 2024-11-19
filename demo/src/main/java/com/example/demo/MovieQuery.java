@@ -11,42 +11,40 @@ public class MovieQuery {
 
     private String searchKeyword;
 
-    // Constructor 初始化搜尋關鍵字
+
     public MovieQuery(String searchKeyword) {
         this.searchKeyword = searchKeyword;
     }
 
-    // 使用 TMDB API 搜尋電影名稱
+
     public HashMap<String, String> query() {
         HashMap<String, String> results = new HashMap<>();
         try {
-            // 建立請求 URL
+
             String url = UriComponentsBuilder.fromHttpUrl(TMDB_SEARCH_URL)
                     .queryParam("api_key", API_KEY)
                     .queryParam("query", searchKeyword)
-                    .queryParam("language", "zh-TW") // 設定語言為繁體中文
+                    .queryParam("language", "zh-TW")
                     .queryParam("page", "1")
                     .toUriString();
 
-            // 發送 GET 請求到 TMDB API
             RestTemplate restTemplate = new RestTemplate();
             TMDBResponse response = restTemplate.getForObject(url, TMDBResponse.class);
 
-            // 處理 API 回應，提取電影名稱
             if (response != null && response.getResults() != null) {
-                // 使用 for 迴圈遍歷陣列
+
                 for (Movie movie : response.getResults()) {
-                    results.put(movie.getTitle(), ""); // 只添加電影名稱
+                    results.put(movie.getTitle(), "");
                 }
             }
         } catch (Exception e) {
             System.err.println("Error querying TMDB API: " + e.getMessage());
         }
 
-        return results; // 回傳只包含電影名稱的結果
+        return results;
     }
 
-    // 對應 TMDB API 回應的內部類別
+
     private static class TMDBResponse {
         private Movie[] results;
 
