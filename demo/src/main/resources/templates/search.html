@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movile</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #results {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movile</h1>
+        <form id="searchForm">
+            <input type="text" id="searchInput" placeholder="Enter keyword..." required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="results">
+            <!-- Results will appear here -->
+        </div>
+    </div>
+    <script>
+        document.getElementById("searchForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const searchTerm = document.getElementById("searchInput").value;
+
+            fetch("/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ keyword: searchTerm })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error fetching search results");
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+
+            function displayResults(results) {
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = "";
+
+                if (Object.keys(results).length === 0) {
+                    resultsDiv.innerHTML = "<p>No movie results found.</p>";
+                } else {
+                    Object.keys(results).forEach((title) => {
+                        const resultItem = document.createElement("div");
+                        resultItem.classList.add("result-item");
+
+                        const resultTitle = document.createElement("p");
+                        resultTitle.classList.add("result-title");
+                        resultTitle.textContent = title;
+
+                        resultItem.appendChild(resultTitle);
+                        resultsDiv.appendChild(resultItem);
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
