@@ -33,7 +33,7 @@ public class Main {
 
         System.out.println("Search Keyword: " + keyword + " | Language: " + language);
 
-        MovieQuery query = new MovieQuery(keyword, language, 1);
+        MovieQuery query = new MovieQuery(keyword, language);
         HashMap<String, String> results = query.query();
 
         List<Map<String, String>> movieResults = new ArrayList<>();

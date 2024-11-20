@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Search</title>
     <style>
+
+        #loading {
+            display: none;
+            text-align: center;
+            font-size: 20px;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -12,19 +19,17 @@
         <h1>Movie Search</h1>
         <form id="searchForm">
             <input type="text" id="searchInput" placeholder="Enter keyword..." required>
-
             <select id="languageSelect">
                 <option value="en-US">English</option>
                 <option value="zh-TW">繁體中文</option>
                 <option value="ja-JP">日本語</option>
                 <option value="ko-KR">한국어</option>
-
             </select>
             <button type="submit">Search</button>
         </form>
-        <div id="results">
 
-        </div>
+        <div id="loading">Running... ...</div>
+        <div id="results"></div>
     </div>
 
     <script>
@@ -37,6 +42,8 @@
         });
 
         function fetchResults(searchTerm, selectedLanguage) {
+            document.getElementById("loading").style.display = "block";
+
             fetch("/search", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -49,9 +56,11 @@
                 return response.json();
             })
             .then(data => {
+                document.getElementById("loading").style.display = "none";
                 displayResults(data.results);
             })
             .catch(error => {
+                document.getElementById("loading").style.display = "none";
                 console.error("Error:", error);
             });
         }
@@ -81,6 +90,7 @@
     </script>
 </body>
 </html>
+
 
 
 
