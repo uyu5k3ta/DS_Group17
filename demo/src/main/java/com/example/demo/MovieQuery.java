@@ -54,6 +54,7 @@ public class MovieQuery {
                     break;
                 }
             }
+
             ExecutorService executor = Executors.newFixedThreadPool(10);
             List<CompletableFuture<Void>> futures = new ArrayList<>();
 
@@ -99,7 +100,7 @@ public class MovieQuery {
         private Movie[] results;
 
         @JsonProperty("total_pages")
-        private int total_pages;
+        private int totalPages;
 
         public Movie[] getResults() {
             return results;
@@ -110,18 +111,18 @@ public class MovieQuery {
         }
 
         public int getTotalPages() {
-            return total_pages;
+            return totalPages;
         }
 
-        public void setTotalPages(int total_pages) {
-            this.total_pages = total_pages;
+        public void setTotalPages(int totalPages) {
+            this.totalPages = totalPages;
         }
 
         @Override
         public String toString() {
             return "TMDBResponse{" +
                     "results=" + Arrays.toString(results) +
-                    ", total_pages=" + total_pages +
+                    ", totalPages=" + totalPages +
                     '}';
         }
     }
@@ -168,6 +169,8 @@ public class MovieQuery {
         }
     }
 }
+
+
 
 
 
