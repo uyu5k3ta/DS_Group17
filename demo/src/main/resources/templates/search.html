@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Search</title>
-    <style>
-
-        #loading {
-            display: none;
-            text-align: center;
-            font-size: 20px;
-            color: #007bff;
-        }
-    </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Movie Search</h1>
@@ -33,7 +26,17 @@
     </div>
 
     <script>
-        document.getElementById("searchForm").addEventListener("submit", function(event) {
+        function loadStyle(url) {
+            var link = document.createElement('link')
+            link.type = 'text/css'
+            link.rel = 'stylesheet'
+            link.href = url
+            var head = document.getElementsByTagName('head')[0]
+            head.appendChild(link)
+        }
+        loadStyle('styles.css')
+
+        document.getElementById("searchForm").addEventListener("submit", function (event) {
             event.preventDefault();
             const searchTerm = document.getElementById("searchInput").value;
             const selectedLanguage = document.getElementById("languageSelect").value;
@@ -49,20 +52,20 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ keyword: searchTerm, language: selectedLanguage, page: 1 })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error fetching search results");
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById("loading").style.display = "none";
-                displayResults(data.results);
-            })
-            .catch(error => {
-                document.getElementById("loading").style.display = "none";
-                console.error("Error:", error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error fetching search results");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("loading").style.display = "none";
+                    displayResults(data.results);
+                })
+                .catch(error => {
+                    document.getElementById("loading").style.display = "none";
+                    console.error("Error:", error);
+                });
         }
 
         function displayResults(results) {
@@ -87,25 +90,10 @@
                 });
             }
         }
+
+
+
     </script>
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
