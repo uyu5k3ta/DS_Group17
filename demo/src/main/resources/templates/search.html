@@ -1,50 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Search</title>
-    <style>
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-        #results, #rankedResults {
-            margin-top: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-        .result-item, .ranked-item {
-            margin-bottom: 10px;
-        }
-        .result-title, .ranked-title {
-            font-size: 16px;
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Movie Search</h1>
-        <form id="searchForm">
-            <input type="text" id="searchInput" placeholder="Enter movie name..." required>
-            <button type="submit">Search</button>
-        </form>
-        <div id="results"></div>
-        <div id="rankedResults" style="display: none;">
-            <h2>Ranked Websites</h2>
-            <div id="rankedList"></div>
-        </div>
+    <h1>Movie Search</h1>
+    <form id="searchForm">
+        <input type="text" id="searchInput" placeholder="Enter movie name..." required>
+        <button type="submit">Search</button>
+    </form>
+    <div id="results"></div>
+    <div>
+        <button id="prevPage" disabled>Previous</button>
+        <button id="nextPage">Next</button>
     </div>
-	<div id="pagination">
-	    <button id="prevPage" disabled>Previous 100</button>
-	    <button id="nextPage">Next 100</button>
-	</div>
-    <script src="script.js"></script>
+    <script>
+        let currentPage = 1;
+
+        document.getElementById("searchForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            fetchMovies(1);
+        });
+
+        function fetchMovies(page) {
+            const keyword = document.getElementById("searchInput").value;
+            fetch("/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ keyword, page }),
+            })
+            .then(res => res.json())
+            .then(data => displayResults(data, page));
+        }
+
+        function displayResults(results, page) {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
+            Object.entries(results).forEach(([title, url]) => {
+                resultsDiv.innerHTML += `<div><a href="/ranking?movie=${encodeURIComponent(title)}">${title}</a></div>`;
+            });
+            currentPage = page;
+            document.getElementById("prevPage").disabled = currentPage === 1;
+        }
+
+        document.getElementById("prevPage").onclick = () => fetchMovies(currentPage - 1);
+        document.getElementById("nextPage").onclick = () => fetchMovies(currentPage + 1);
+    </script>
 </body>
 </html>
+
+
 

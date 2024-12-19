@@ -1,41 +1,29 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking Results</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Ranking Results for <span id="movieName"></span></h1>
-        <div id="rankingResults">
-            <!-- 排序結果將顯示於此 -->
-        </div>
-    </div>
+    <h1>Ranking Results for <span th:text="${movie}">Movie</span></h1>
+    <div id="results"></div>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const movieName = urlParams.get("movie");
-        document.getElementById("movieName").textContent = movieName;
-
+        const movieName = "[[${movie}]]";
         fetch("/ranked-urls", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ keyword: movieName }),
+            body: JSON.stringify({ keyword: movieName })
         })
-            .then((response) => response.json())
-            .then((data) => {
-                const resultsDiv = document.getElementById("rankingResults");
-                resultsDiv.innerHTML = "";
-
-                Object.entries(data).forEach(([url, count]) => {
-                    const resultItem = document.createElement("div");
-                    resultItem.innerHTML = `<a href="${url}" target="_blank">${url}</a> - Keyword Count: ${count}`;
-                    resultsDiv.appendChild(resultItem);
-                });
-            })
-            .catch((error) => {
-                console.error("Error fetching ranked URLs:", error);
+        .then(res => res.json())
+        .then(data => {
+            const results = document.getElementById("results");
+            Object.entries(data).forEach(([url, count]) => {
+                results.innerHTML += `<div><a href="${url}" target="_blank">${url}</a> - Count: ${count}</div>`;
             });
+        });
     </script>
 </body>
 </html>
+
+
+
