@@ -11,14 +11,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
+import java.util.Map;
+
 @SpringBootApplication
 @Controller
-
 public class Main {
 
-	public static void main(String[] args) {
-	    SpringApplication.run(Main.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+
     // 根頁面顯示 search.html
     @GetMapping("/")
     public String index() {
@@ -46,14 +48,36 @@ public class Main {
 
     // 返回基於電影名稱的網頁排序結果
     @PostMapping("/ranked-urls")
-    public ResponseEntity<HashMap<String, Integer>> rankedUrls(@RequestBody HashMap<String, String> request) {
+    public ResponseEntity<HashMap<String, Object>> rankedUrls(@RequestBody HashMap<String, String> request) {
+        // 獲取請求中的關鍵字
         String keyword = request.get("keyword");
-        MovieQuery query = new MovieQuery(keyword);
-        HashMap<String, Integer> rankedResults = query.fetchAndRankWebsites();
+        if (keyword == null || keyword.isEmpty()) {
+            return ResponseEntity.badRequest().build(); // 如果關鍵字為空，返回 400 錯誤
+        }
 
+        // 創建 MovieQuery 對象並執行抓取
+        MovieQuery query = new MovieQuery(keyword);
+        HashMap<String, Object> rankedResults = query.fetchWebsitesWithKeywordsAndSubpagesSorted();
+
+        // 返回抓取結果
         return ResponseEntity.ok(rankedResults);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

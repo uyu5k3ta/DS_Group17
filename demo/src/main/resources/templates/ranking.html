@@ -7,23 +7,121 @@
 <body>
     <h1>Ranking Results for <span th:text="${movie}">Movie</span></h1>
     <div id="results"></div>
+    <h2>Related Keywords</h2>
+    <div id="relatedKeywords"></div>
+    <div>
+        <button id="prevPage" disabled>上一頁</button>
+        <button id="nextPage">下一頁</button>
+    </div>
     <script>
+        let currentPage = 1; // 紀錄目前的頁數
         const movieName = "[[${movie}]]";
-        fetch("/ranked-urls", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ keyword: movieName })
-        })
-        .then(res => res.json())
-        .then(data => {
-            const results = document.getElementById("results");
-            Object.entries(data).forEach(([url, count]) => {
-                results.innerHTML += `<div><a href="${url}" target="_blank">${url}</a> - Count: ${count}</div>`;
-            });
+
+        // 初始化載入第一頁結果
+        fetchResults(currentPage);
+
+        // 綁定翻頁按鈕事件
+        document.getElementById("prevPage").addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchResults(currentPage);
+            }
         });
+
+        document.getElementById("nextPage").addEventListener("click", () => {
+            currentPage++;
+            fetchResults(currentPage);
+        });
+
+        // 發送請求並更新結果
+        function fetchResults(page) {
+            fetch("/ranked-urls", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ keyword: movieName, page })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const results = document.getElementById("results");
+                const relatedKeywordsDiv = document.getElementById("relatedKeywords");
+
+                // 清空舊結果
+                results.innerHTML = "";
+                relatedKeywordsDiv.innerHTML = "";
+
+                // 解析數據並構建結果
+                if (data.siteData) {
+                    Object.entries(data.siteData).forEach(([url, details]) => {
+                        const keywordCount = details.keywordCount || 0;
+                        const subpages = details.subpages || [];
+
+                        // 顯示母網頁 URL 和總關鍵字數量
+                        const motherPage = document.createElement("div");
+                        motherPage.innerHTML = `<strong><a href="${url}" target="_blank">${url}</a></strong> - Total Keyword Count: ${keywordCount}`;
+                        results.appendChild(motherPage);
+
+                        // 顯示子頁列表
+                        if (subpages.length > 0) {
+                            const subpagesHeader = document.createElement("p");
+                            subpagesHeader.textContent = "Subpages:";
+                            results.appendChild(subpagesHeader);
+
+                            const subpagesList = document.createElement("ul");
+
+                            subpages.forEach(subpage => {
+                                const subUrl = subpage.url || "Unknown URL";
+                                const subKeywordCount = subpage.keywordCount || 0;
+                                const listItem = document.createElement("li");
+                                listItem.innerHTML = `<a href="${subUrl}" target="_blank">${subUrl}</a> - Keyword Count: ${subKeywordCount}`;
+                                subpagesList.appendChild(listItem);
+                            });
+
+                            results.appendChild(subpagesList);
+                        } else {
+                            const noSubpages = document.createElement("p");
+                            noSubpages.textContent = "No subpages found.";
+                            results.appendChild(noSubpages);
+                        }
+                    });
+                }
+
+                // 顯示相關關鍵字
+                if (data.relatedKeywords && data.relatedKeywords.length > 0) {
+                    data.relatedKeywords.forEach(keyword => {
+                        const key = keyword.key || "Unknown";
+                        const value = keyword.value || 0;
+                        const keywordSpan = document.createElement("span");
+                        keywordSpan.textContent = `${key} (${value})`;
+                        keywordSpan.style.marginRight = "10px";
+                        relatedKeywordsDiv.appendChild(keywordSpan);
+                    });
+                } else {
+                    relatedKeywordsDiv.textContent = "No related keywords found.";
+                }
+
+                // 更新翻頁按鈕狀態
+                document.getElementById("prevPage").disabled = page === 1;
+            })
+            .catch(error => {
+                console.error("Error fetching ranking results:", error);
+            });
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -15,7 +15,10 @@ function fetchMovies(page) {
         body: JSON.stringify({ keyword: searchTerm, page: page }),
     })
         .then((response) => response.json())
-        .then((data) => displayResults(data))
+        .then((data) => {
+            displayResults(data.results);
+            displayRelatedKeywords(data.relatedKeywords);
+        })
         .catch((error) => console.error("Error fetching results:", error));
 }
 
@@ -34,6 +37,19 @@ function displayResults(results) {
         resultItem.appendChild(resultLink);
         resultsDiv.appendChild(resultItem);
     });
+
+    document.getElementById("prevPage").disabled = currentPage === 1;
+}
+
+function displayRelatedKeywords(keywords) {
+    const keywordsDiv = document.getElementById("relatedKeywords");
+    keywordsDiv.innerHTML = "";
+    keywords.forEach(keyword => {
+        const keywordSpan = document.createElement("span");
+        keywordSpan.textContent = keyword;
+        keywordSpan.style.marginRight = "10px";
+        keywordsDiv.appendChild(keywordSpan);
+    });
 }
 
 document.getElementById("prevPage").addEventListener("click", function () {
@@ -48,17 +64,3 @@ document.getElementById("nextPage").addEventListener("click", function () {
     fetchMovies(currentPage);
 });
 
-
-// 上一頁按鈕的點擊事件
-document.getElementById("prevPage").addEventListener("click", function () {
-    if (currentPage > 1) {
-        currentPage--;
-        fetchMovies(currentPage); // 獲取上一頁的電影
-    }
-});
-
-// 下一頁按鈕的點擊事件
-document.getElementById("nextPage").addEventListener("click", function () {
-    currentPage++;
-    fetchMovies(currentPage); // 獲取下一頁的電影
-});
