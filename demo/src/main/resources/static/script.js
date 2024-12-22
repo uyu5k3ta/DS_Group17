@@ -49,16 +49,15 @@ document.getElementById("nextPage").addEventListener("click", function () {
 });
 
 
-// 上一頁按鈕的點擊事件
+
 document.getElementById("prevPage").addEventListener("click", function () {
     if (currentPage > 1) {
         currentPage--;
-        fetchMovies(currentPage); // 獲取上一頁的電影
+        fetchMovies(currentPage);
     }
 });
 
-// 下一頁按鈕的點擊事件
 document.getElementById("nextPage").addEventListener("click", function () {
     currentPage++;
-    fetchMovies(currentPage); // 獲取下一頁的電影
+    fetchMovies(currentPage);
 });

@@ -25,34 +25,33 @@
     <script>
         let currentPage = 1;
 
-        // 限制只能輸入英文字符
+
         document.getElementById("searchInput").addEventListener("input", function (e) {
             const inputField = e.target;
-            const nonEnglishPattern = /[^a-zA-Z\s]/g; // 匹配非英文字母和空格的字符
+            const nonEnglishPattern = /[^a-zA-Z\s]/g;
 
             if (nonEnglishPattern.test(inputField.value)) {
-                inputField.value = inputField.value.replace(nonEnglishPattern, ""); // 移除非法字符
+                inputField.value = inputField.value.replace(nonEnglishPattern, "");
                 displayErrorMessage("Only English letters are allowed.");
             } else {
-                clearErrorMessage(); // 清除錯誤消息
+                clearErrorMessage(); 
             }
         });
 
-        // 表單提交事件
         document.getElementById("searchForm").addEventListener("submit", function (e) {
             e.preventDefault();
             fetchMovies(1);
         });
 
 		function fetchMovies(page) {
-		    const keyword = document.getElementById("searchInput").value.trim(); // 去除多餘空格
+		    const keyword = document.getElementById("searchInput").value.trim();
 
 		    if (!keyword) {
 		        displayErrorMessage("Please enter a movie name.");
 		        return;
 		    }
 
-		    clearErrorMessage(); // 清除錯誤消息
+		    clearErrorMessage();
 
 		    fetch("/search", {
 		        method: "POST",
@@ -61,17 +60,16 @@
 		    })
 		    .then(res => {
 		        if (res.redirected) {
-		            // 如果後端返回重定向，跳轉到新的 URL
+
 		            window.location.href = res.url;
 		            return;
 		        }
 
-		        // 如果不是重定向，解析 JSON
 		        return res.json();
 		    })
 		    .then(data => {
 		        if (data) {
-		            // 顯示結果
+
 		            displayResults(data, page);
 		        }
 		    })

@@ -24,7 +24,7 @@
         #loading {
             font-size: 18px;
             color: #666;
-            display: none; /* 預設隱藏 */
+            display: none;
             text-align: center;
             margin: 20px 0;
         }
@@ -46,13 +46,11 @@
         <button id="nextPage">next page</button>
     </div>
     <script>
-        let currentPage = 1; // 紀錄目前的頁數
+        let currentPage = 1;
         const movieName = "[[${movie}]]";
 
-        // 初始化載入第一頁結果
         fetchResults(currentPage);
 
-        // 綁定翻頁按鈕事件
         document.getElementById("prevPage").addEventListener("click", () => {
             if (currentPage > 1) {
                 currentPage--;
@@ -65,12 +63,11 @@
             fetchResults(currentPage);
         });
 
-        // 發送請求並更新結果
         function fetchResults(page) {
-            // 禁用翻頁按鈕並顯示 Loading 提示
+
             togglePaginationButtons(false);
             document.getElementById("loading").style.display = "block";
-            document.getElementById("results").innerHTML = ""; // 清空結果區域
+            document.getElementById("results").innerHTML = ""; 
 
             fetch("/ranked-urls", {
                 method: "POST",
@@ -82,11 +79,11 @@
                 const results = document.getElementById("results");
                 const relatedKeywordsDiv = document.getElementById("relatedKeywords");
 
-                // 清空舊結果
+
                 results.innerHTML = "";
                 relatedKeywordsDiv.innerHTML = "<strong>relative word:</strong><br>";
 
-                // 僅顯示排序後的母頁連結
+
                 if (data.siteData) {
                     Object.keys(data.siteData).forEach(url => {
                         const motherPage = document.createElement("div");
@@ -97,7 +94,6 @@
                     results.textContent = "No mother pages found.";
                 }
 
-                // 顯示相關關鍵字
                 if (data.relatedKeywords && data.relatedKeywords.length > 0) {
                     data.relatedKeywords.forEach(keyword => {
                         const key = keyword.key || "Unknown";
@@ -109,23 +105,20 @@
                     relatedKeywordsDiv.innerHTML += "No related keywords found.";
                 }
 
-                // 隱藏 Loading 提示並啟用翻頁按鈕
                 document.getElementById("loading").style.display = "none";
                 togglePaginationButtons(true);
 
-                // 更新上一頁按鈕狀態
                 document.getElementById("prevPage").disabled = page === 1;
             })
             .catch(error => {
                 console.error("Error fetching ranking results:", error);
 
-                // 隱藏 Loading 提示並啟用翻頁按鈕
+
                 document.getElementById("loading").style.display = "none";
                 togglePaginationButtons(true);
             });
         }
 
-        // 控制翻頁按鈕的啟用/禁用狀態
         function togglePaginationButtons(enabled) {
             document.getElementById("prevPage").disabled = !enabled;
             document.getElementById("nextPage").disabled = !enabled;

@@ -11,9 +11,9 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class MovieQuery {
-    private static final String API_KEY = "0b4e744f6953e2f4d1ef85a812a7f2cd"; // 替换为您的 TMDB API Key
+    private static final String API_KEY = "0b4e744f6953e2f4d1ef85a812a7f2cd";
     private static final String TMDB_SEARCH_URL = "https://api.themoviedb.org/3/search/movie";
-    private static final int THREAD_POOL_SIZE = 50; // 增加线程数量以加速爬取
+    private static final int THREAD_POOL_SIZE = 50;
 
     private String searchKeyword;
     private int page;
@@ -27,7 +27,7 @@ public class MovieQuery {
         this.searchKeyword = searchKeyword;
     }
 
-    // 保留原始 TMDB 查询功能
+
     public HashMap<String, String> query() {
         HashMap<String, String> results = new HashMap<>();
         try {
@@ -38,7 +38,7 @@ public class MovieQuery {
             Document response = Jsoup.connect(url).ignoreContentType(true).get();
             String json = response.text();
 
-            // 使用 Jackson 解析 JSON
+
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(json).get("results");
 
@@ -62,7 +62,7 @@ public class MovieQuery {
         int currentPage = 1;
 
         try {
-            // 爬取 10 个有效的母页
+
             while (urls.size() < 10) {
                 String searchUrl = "https://www.google.com/search?q=" + searchKeyword + "+movie" + "&start=" + ((currentPage - 1) * 10);
                 Document document = Jsoup.connect(searchUrl)
@@ -87,7 +87,7 @@ public class MovieQuery {
                 currentPage++;
             }
 
-            // 处理每个母页，提取数据并更新全局词频
+
             List<Callable<Void>> tasks = new ArrayList<>();
             for (String url : urls) {
                 tasks.add(() -> {
@@ -118,7 +118,7 @@ public class MovieQuery {
             executor.shutdown();
         }
 
-        // 根据总关键字频率对网站进行排序
+
         List<Map.Entry<String, Map<String, Object>>> sortedSites = siteData.entrySet().stream()
                 .sorted((entry1, entry2) -> {
                     int count1 = (int) entry1.getValue().get("keywordCount");
@@ -127,13 +127,11 @@ public class MovieQuery {
                 })
                 .toList();
 
-        // 转换为有序的 HashMap
         LinkedHashMap<String, Map<String, Object>> sortedSiteData = new LinkedHashMap<>();
         for (Map.Entry<String, Map<String, Object>> entry : sortedSites) {
             sortedSiteData.put(entry.getKey(), entry.getValue());
         }
 
-        // 返回结果
         HashMap<String, Object> result = new HashMap<>();
         result.put("siteData", sortedSiteData);
         result.put("relatedKeywords", getTopNounKeywords(globalKeywordFrequency));
@@ -147,7 +145,6 @@ public class MovieQuery {
             String word = entry.getKey();
             int count = entry.getValue();
 
-            // 使用 Stanford CoreNLP 判断是否为名词
             Sentence sentence = new Sentence(word);
             String posTag = sentence.posTag(0);
 
