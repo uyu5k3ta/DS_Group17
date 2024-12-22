@@ -3,15 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Ranking Results</title>
+    <style>
+        #relatedKeywords {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #relatedKeywords span {
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        #loading {
+            font-size: 18px;
+            color: #666;
+            display: none; /* 預設隱藏 */
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
     <h1>Ranking Results for <span th:text="${movie}">Movie</span></h1>
+    <div id="loading">Loading...</div>
     <div id="results"></div>
-    <h2>Related Keywords</h2>
-    <div id="relatedKeywords"></div>
+    <div id="relatedKeywords">relative word</div>
     <div>
-        <button id="prevPage" disabled>上一頁</button>
-        <button id="nextPage">下一頁</button>
+        <button id="prevPage" disabled>last page</button>
+        <button id="nextPage">next page</button>
     </div>
     <script>
         let currentPage = 1; // 紀錄目前的頁數
@@ -35,6 +67,11 @@
 
         // 發送請求並更新結果
         function fetchResults(page) {
+            // 禁用翻頁按鈕並顯示 Loading 提示
+            togglePaginationButtons(false);
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("results").innerHTML = ""; // 清空結果區域
+
             fetch("/ranked-urls", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -47,68 +84,59 @@
 
                 // 清空舊結果
                 results.innerHTML = "";
-                relatedKeywordsDiv.innerHTML = "";
+                relatedKeywordsDiv.innerHTML = "<strong>relative word:</strong><br>";
 
-                // 解析數據並構建結果
+                // 僅顯示排序後的母頁連結
                 if (data.siteData) {
-                    Object.entries(data.siteData).forEach(([url, details]) => {
-                        const keywordCount = details.keywordCount || 0;
-                        const subpages = details.subpages || [];
-
-                        // 顯示母網頁 URL 和總關鍵字數量
+                    Object.keys(data.siteData).forEach(url => {
                         const motherPage = document.createElement("div");
-                        motherPage.innerHTML = `<strong><a href="${url}" target="_blank">${url}</a></strong> - Total Keyword Count: ${keywordCount}`;
+                        motherPage.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
                         results.appendChild(motherPage);
-
-                        // 顯示子頁列表
-                        if (subpages.length > 0) {
-                            const subpagesHeader = document.createElement("p");
-                            subpagesHeader.textContent = "Subpages:";
-                            results.appendChild(subpagesHeader);
-
-                            const subpagesList = document.createElement("ul");
-
-                            subpages.forEach(subpage => {
-                                const subUrl = subpage.url || "Unknown URL";
-                                const subKeywordCount = subpage.keywordCount || 0;
-                                const listItem = document.createElement("li");
-                                listItem.innerHTML = `<a href="${subUrl}" target="_blank">${subUrl}</a> - Keyword Count: ${subKeywordCount}`;
-                                subpagesList.appendChild(listItem);
-                            });
-
-                            results.appendChild(subpagesList);
-                        } else {
-                            const noSubpages = document.createElement("p");
-                            noSubpages.textContent = "No subpages found.";
-                            results.appendChild(noSubpages);
-                        }
                     });
+                } else {
+                    results.textContent = "No mother pages found.";
                 }
 
                 // 顯示相關關鍵字
                 if (data.relatedKeywords && data.relatedKeywords.length > 0) {
                     data.relatedKeywords.forEach(keyword => {
                         const key = keyword.key || "Unknown";
-                        const value = keyword.value || 0;
                         const keywordSpan = document.createElement("span");
-                        keywordSpan.textContent = `${key} (${value})`;
-                        keywordSpan.style.marginRight = "10px";
+                        keywordSpan.textContent = key;
                         relatedKeywordsDiv.appendChild(keywordSpan);
                     });
                 } else {
-                    relatedKeywordsDiv.textContent = "No related keywords found.";
+                    relatedKeywordsDiv.innerHTML += "No related keywords found.";
                 }
 
-                // 更新翻頁按鈕狀態
+                // 隱藏 Loading 提示並啟用翻頁按鈕
+                document.getElementById("loading").style.display = "none";
+                togglePaginationButtons(true);
+
+                // 更新上一頁按鈕狀態
                 document.getElementById("prevPage").disabled = page === 1;
             })
             .catch(error => {
                 console.error("Error fetching ranking results:", error);
+
+                // 隱藏 Loading 提示並啟用翻頁按鈕
+                document.getElementById("loading").style.display = "none";
+                togglePaginationButtons(true);
             });
+        }
+
+        // 控制翻頁按鈕的啟用/禁用狀態
+        function togglePaginationButtons(enabled) {
+            document.getElementById("prevPage").disabled = !enabled;
+            document.getElementById("nextPage").disabled = !enabled;
         }
     </script>
 </body>
 </html>
+
+
+
+
 
 
 

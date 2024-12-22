@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class MovieQuery {
     private static final String API_KEY = "0b4e744f6953e2f4d1ef85a812a7f2cd"; // 替换为您的 TMDB API Key
     private static final String TMDB_SEARCH_URL = "https://api.themoviedb.org/3/search/movie";
-    private static final int THREAD_POOL_SIZE = 100; // 增加线程数量以加速爬取
+    private static final int THREAD_POOL_SIZE = 50; // 增加线程数量以加速爬取
 
     private String searchKeyword;
     private int page;
@@ -110,7 +110,7 @@ public class MovieQuery {
             }
 
             executor.invokeAll(tasks);
-            System.out.println("已完成所有页面爬取");
+            System.out.println("已完成所有頁面爬取");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,6 +172,7 @@ public class MovieQuery {
         Map<String, Integer> keywordFrequency = new HashMap<>();
 
         try {
+        	randomDelay(2000, 5000); 
             Document document = Jsoup.connect(url)
                     .userAgent(getRandomUserAgent())
                     .timeout(5000)
@@ -220,7 +221,7 @@ public class MovieQuery {
             subpageExecutor.invokeAll(subpageTasks);
             subpageExecutor.shutdown();
 
-            System.out.println("完成母页爬取: " + url);
+            System.out.println("完成母頁爬取: " + url);
         } catch (Exception e) {
             System.err.println("Error fetching page data from: " + url);
         }
@@ -251,16 +252,39 @@ public class MovieQuery {
 
     private String getRandomUserAgent() {
         String[] userAgents = {
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
-                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0",
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
-                "Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Mobile Safari/537.36"
+                // Desktop User-Agents
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.125 Safari/537.36",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0",
+
+                // Mobile User-Agents
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1",
+                "Mozilla/5.0 (Linux; Android 12; SM-G996B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36",
+                "Mozilla/5.0 (Linux; Android 10; Pixel 4 Build/QQ3A.200805.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
+                "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1",
+                "Mozilla/5.0 (Linux; Android 9; SM-G930V Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/10.1 Chrome/71.0.3578.99 Mobile Safari/537.36",
+
+                // Other Variants
+                "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
         };
 
         Random random = new Random();
         return userAgents[random.nextInt(userAgents.length)];
     }
+
+    
+    private void randomDelay(int minMillis, int maxMillis) {
+        Random random = new Random();
+        try {
+            Thread.sleep(minMillis + random.nextInt(maxMillis - minMillis + 1));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }
 
 
