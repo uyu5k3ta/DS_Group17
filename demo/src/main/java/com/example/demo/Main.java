@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -22,17 +23,15 @@ public class Main {
         SpringApplication.run(Main.class, args);
     }
 
-
     @GetMapping("/")
     public String index() {
         return "search";
     }
 
-
     @GetMapping("/ranking")
     public String ranking(@RequestParam("movie") String movie, Model model) {
-        model.addAttribute("movie", movie); 
-        return "ranking"; 
+        model.addAttribute("movie", movie);
+        return "ranking";
     }
 
     @PostMapping("/search")
@@ -46,7 +45,6 @@ public class Main {
 
         MovieQuery query = new MovieQuery(keyword, page);
         HashMap<String, String> results = query.query();
-
 
         if (results.isEmpty()) {
             return new RedirectView("/ranking?movie=" + keyword);
@@ -66,9 +64,31 @@ public class Main {
         MovieQuery query = new MovieQuery(keyword);
         HashMap<String, Object> rankedResults = query.fetchWebsitesWithKeywordsAndSubpagesSorted();
 
+        HashMap<String, Object> formattedResults = new HashMap<>();
+        Map<String, Map<String, Object>> siteData = (Map<String, Map<String, Object>>) rankedResults.get("siteData");
 
-        return ResponseEntity.ok(rankedResults);
+        Map<String, Map<String, String>> formattedSiteData = new LinkedHashMap<>();
+        if (siteData != null) {
+            for (Map.Entry<String, Map<String, Object>> entry : siteData.entrySet()) {
+                String url = entry.getKey();
+                Map<String, Object> pageInfo = entry.getValue();
+                String title = (String) pageInfo.getOrDefault("title", "No Title");
+
+                Map<String, String> siteInfo = new HashMap<>();
+                siteInfo.put("title", title);
+                siteInfo.put("url", url);
+
+                formattedSiteData.put(url, siteInfo);
+            }
+        }
+
+        formattedResults.put("siteData", formattedSiteData);
+        formattedResults.put("relatedKeywords", rankedResults.get("relatedKeywords"));
+
+        return ResponseEntity.ok(formattedResults);
     }
+
+
 }
 
 

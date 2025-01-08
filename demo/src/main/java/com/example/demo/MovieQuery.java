@@ -62,7 +62,6 @@ public class MovieQuery {
         int currentPage = 1;
 
         try {
-
             while (urls.size() < 10) {
                 String searchUrl = "https://www.google.com/search?q=" + searchKeyword + "+movie" + "&start=" + ((currentPage - 1) * 10);
                 Document document = Jsoup.connect(searchUrl)
@@ -87,14 +86,18 @@ public class MovieQuery {
                 currentPage++;
             }
 
-
             List<Callable<Void>> tasks = new ArrayList<>();
             for (String url : urls) {
                 tasks.add(() -> {
                     try {
                         Map<String, Object> pageData = fetchPageData(url);
+                        String title = fetchTitle(url);
                         synchronized (siteData) {
-                            siteData.put(url, pageData);
+                            Map<String, Object> pageInfo = new HashMap<>();
+                            pageInfo.put("title", title);
+                            pageInfo.put("url", url);
+                            pageInfo.putAll(pageData);
+                            siteData.put(url, pageInfo);
                         }
                         synchronized (globalKeywordFrequency) {
                             Map<String, Integer> localFrequency = (Map<String, Integer>) pageData.get("keywordFrequency");
@@ -110,7 +113,7 @@ public class MovieQuery {
             }
 
             executor.invokeAll(tasks);
-            System.out.println("已完成所有頁面爬取");
+            System.out.println("Completed crawling all pages.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,11 +121,10 @@ public class MovieQuery {
             executor.shutdown();
         }
 
-
         List<Map.Entry<String, Map<String, Object>>> sortedSites = siteData.entrySet().stream()
                 .sorted((entry1, entry2) -> {
-                    int count1 = (int) entry1.getValue().get("keywordCount");
-                    int count2 = (int) entry2.getValue().get("keywordCount");
+                    int count1 = (int) entry1.getValue().getOrDefault("keywordCount", 0);
+                    int count2 = (int) entry2.getValue().getOrDefault("keywordCount", 0);
                     return Integer.compare(count2, count1);
                 })
                 .toList();
@@ -137,6 +139,21 @@ public class MovieQuery {
         result.put("relatedKeywords", getTopNounKeywords(globalKeywordFrequency));
         return result;
     }
+
+    private String fetchTitle(String url) {
+        try {
+            Document document = Jsoup.connect(url)
+                    .userAgent(getRandomUserAgent())
+                    .timeout(5000)
+                    .get();
+            return document.title();
+        } catch (Exception e) {
+            System.err.println("Error fetching title for: " + url);
+            return "Unknown Title";
+        }
+    }
+
+
 
     private List<Map<String, Object>> getTopNounKeywords(Map<String, Integer> keywordFrequency) {
         List<Map<String, Object>> nounKeywords = new ArrayList<>();
@@ -249,21 +266,16 @@ public class MovieQuery {
 
     private String getRandomUserAgent() {
         String[] userAgents = {
-                // Desktop User-Agents
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.125 Safari/537.36",
                 "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0",
-
-                // Mobile User-Agents
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1",
                 "Mozilla/5.0 (Linux; Android 12; SM-G996B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36",
                 "Mozilla/5.0 (Linux; Android 10; Pixel 4 Build/QQ3A.200805.001) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36",
                 "Mozilla/5.0 (iPad; CPU OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1",
                 "Mozilla/5.0 (Linux; Android 9; SM-G930V Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/10.1 Chrome/71.0.3578.99 Mobile Safari/537.36",
-
-                // Other Variants
                 "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
         };
@@ -283,6 +295,7 @@ public class MovieQuery {
     }
 
 }
+
 
 
 

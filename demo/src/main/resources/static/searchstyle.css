@@ -1,0 +1,172 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#loading {
+    display: none;
+    text-align: center;
+    font-size: 20px;
+    color: #007bff;
+}
+
+body {
+    font-family: 'Trebuchet MS', Georgia, 'Times New Roman', Times, serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8),
+            rgba(0, 0, 0, 0.5)), url(https://wallpapercave.com/wp/wp10615928.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+
+#box {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff50;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#containerspecial {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+h1 {
+    font-family: 'Trebuchet MS', Georgia, 'Times New Roman', Times, serif;
+    color: #ffffff;
+    font-size: 80px;
+    margin-bottom: 1px;
+    text-align: center;
+}
+
+h2 {
+    font-family: 'Trebuchet MS', 'Times New Roman', Times, serif, sans-serif;
+    color: #ffffff;
+    font-size: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#results a{
+    font-family: 'Trebuchet MS', Georgia, 'Times New Roman', Times, serif;
+    text-align: left;
+    color: white !important;
+	margin-bottom: 5px;
+    font-size: 17px;
+}
+
+.result-item {
+    margin-bottom: 15px;
+}
+
+.result-title {
+    font-size: 1.1rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.result-title:hover {
+    text-decoration: underline;
+}
+
+.result-url {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+
+#errorMessage {
+    color: red;
+    font-weight: bold;
+}
+
+#prevPage {
+    display: none;
+}
+
+#nextPage {
+    display: none;
+}
+
+#left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 100vh;
+}
+
+#right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    height: 100vh;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    /* 水平居中對齊 */
+    gap: 10px;
+    /* 按鈕之間的間距 */
+}
+
+.button-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
